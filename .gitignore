@@ -1,0 +1,7 @@
+/output/
+/data/
+.venv/
+*.egg-info/
+build/
+dist/
+.env

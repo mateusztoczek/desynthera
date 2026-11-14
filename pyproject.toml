@@ -1,0 +1,17 @@
+[build-system]
+requires=["setuptools>=68"]
+build-backend= "setuptools.build_meta"
+
+[project]
+name = "desynthera"
+version= "0.1"
+description ="etl and validation for Synthea generated data"
+requires-python=">=3.11"
+dependencies=[
+    "polars>=1.0,<2.0"
+]
+
+[tool.setuptools.packages.find]
+where=["src"]
+include= ["etl*"]
+namespaces =false
