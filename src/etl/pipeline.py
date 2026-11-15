@@ -20,7 +20,7 @@ def run(input_dir: Path, output_dir: Path | None=None)-> None:
         t_name=t_csv.stem.lower()
         if t_name not in T_SCHEMA: continue
         df=pl.scan_csv(t_csv, infer_schema=False)
-        df_resp=p_transform(t_csv,T_SCHEMA[t_name])
+        df_resp=p_transform(df,T_SCHEMA[t_name])
 
         output_file=target_dir/f"{t_name}.parquet"
-        df.sink_parquet(output_file)
+        df_resp.sink_parquet(output_file)
