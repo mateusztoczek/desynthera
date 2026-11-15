@@ -35,7 +35,8 @@ T_SCHEMA={
             "DESCRIPTION2": {"target_name": "Description2", "type": "text", "required": False},
             "SEVERITY2": {"target_name": "Severity2", "type": "text", "required": False}            
         },
-        "primary_key": "AllergiesId"
+        "primary_key": "AllergiesId",
+        "generated_id":{"target_anme":"AllergiesId", "strategy":"uuid5"}
     }
 }
 
