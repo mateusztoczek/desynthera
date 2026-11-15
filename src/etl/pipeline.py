@@ -18,12 +18,7 @@ def run(df_id:str, input_dir: Path, output_dir: Path | None=None)-> None:
     df_id=r_validate_df_id(df_id)
     if not input_dir.is_dir():
         raise FileNotFoundError(f"Path doesnt exists: {input_dir}")
-    target_dir=DEFAULT_OUTPUT
-    if output_dir is not None:
-        try:
-            output_dir.mkdir(parents=True,exist_ok=True)
-            target_dir=output_dir
-        except OSError: print(f"wrong output direction: {output_dir}, using default {DEFAULT_OUTPUT}")
+    target_dir=output_dir if output_dir is not None else DEFAULT_OUTPUT
     target_dir.mkdir(parents=True, exist_ok=True)
 
     for t_csv in sorted(input_dir.glob("*.csv")):
@@ -31,6 +26,14 @@ def run(df_id:str, input_dir: Path, output_dir: Path | None=None)-> None:
         if t_name not in T_SCHEMA: continue
         df=pl.scan_csv(t_csv, infer_schema=False)
         df_resp=p_transform(df,T_SCHEMA[t_name], df_id)
-        p_validate(df,T_SCHEMA[t_name])
+        
         output_file=target_dir/f"{t_name}.parquet"
-        df_resp.sink_parquet(output_file)
+        tmp_file=target_dir/f"{t_name}.parquet.tmp"
+        try:
+            df_resp.sink_parquet(tmp_file)
+            p_validate(pl.scan_parquet(tmp_file),T_SCHEMA[t_name])
+            tmp_file.replace(output_file)
+        except Exception:
+            tmp_file.unlink(missing_ok=True)
+            raise
+            df_resp.sink_parquet(output_file)
