@@ -1,5 +1,7 @@
 from pathlib import Path
 import polars as pl
+from etl.schema import T_SCHEMA
+from etl.transformation import p_transform
 
 DEFAULT_OUTPUT=Path.cwd()/"output"
 
@@ -14,7 +16,11 @@ def run(input_dir: Path, output_dir: Path | None=None)-> None:
         except OSError: print(f"wrong output direction: {output_dir}, using default {DEFAULT_OUTPUT}")
     target_dir.mkdir(parents=True, exist_ok=True)
 
-    for f_csv in sorted(input_dir.glob("*.csv")):
-        df=pl.scan_csv(f_csv, infer_schema=False)
-        output_file=target_dir/f"{f_csv.stem}.parquet"
+    for t_csv in sorted(input_dir.glob("*.csv")):
+        t_name=t_csv.stem.lower()
+        if t_name not in T_SCHEMA: continue
+        df=pl.scan_csv(t_csv, infer_schema=False)
+        df_resp=p_transform(t_csv,T_SCHEMA[t_name])
+
+        output_file=target_dir/f"{t_name}.parquet"
         df.sink_parquet(output_file)
