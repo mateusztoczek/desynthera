@@ -110,7 +110,7 @@ T_SCHEMA={
     "observations": {
         "columns": {
             "PATIENT": {"target_name": "PatientId", "type": "uuid", "required": True},
-            "ENCOUNTER":{"target_name": "EncounterId", "type": "uuid", "required": True},
+            "ENCOUNTER":{"target_name": "EncounterId", "type": "uuid", "required": False},
             "DATE": {"target_name":"ObservationDate","type":"datetime", "required": True},
             "CATEGORY": {"target_name": "Category", "type": "text", "required": False},
             "CODE": {"target_name": "Code","type":"text","required": True},

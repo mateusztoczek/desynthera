@@ -1,4 +1,5 @@
 import argparse
+from pathlib import Path
 from etl.pipeline import run as run_pipe
 
 def run()->None:
@@ -8,4 +9,4 @@ def run()->None:
     parse.add_argument("--output_dir", default=None )
 
     args=parse.parse_args()
-    run_pipe(args.df_id,args.input_dir, args.output_dir)
+    run_pipe(df_id=args.df_id,input_dir=Path(args.input_dir), output_dir=Path(args.output_dir) if args.output_dir else None)

@@ -1,5 +1,5 @@
 import argparse
-from .etl.cli import run
+from etl.cli import run
 
 def main():
     run()

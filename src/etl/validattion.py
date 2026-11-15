@@ -9,7 +9,8 @@ REQ_TYPE= {
     "uuid": pl.String,
     "text": pl.String,
     "integer": pl.Int64,
-    "decimal": pl.Decimal(18, 2)
+    "decimal": pl.Decimal(18, 2),
+    "decimal3": pl.Decimal(18, 3) 
 }
 
 
