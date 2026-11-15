@@ -22,10 +22,14 @@ def p_transform(df: pl.LazyFrame, t_map:dict,df_id:str)->pl.LazyFrame:
         match t_dtype:
             case "date":
                 c=c.str.strptime(pl.Date,format="%Y-%m-%d",strict=True)
+            case "datetime":
+                c=c.str.to_datetime(time_unit="us",time_zone="UTC", strict=True).dt.replace_time_zone(None)
             case "integer":
                 c=c.cast(pl.Int64,strict=True)
             case "decimal":
                 c=c.cast(pl.Decimal(18,2), strict=True)
+            case "decimal3":
+                c=c.cast(pl.Decimal(18,3), strict=True)
             case "uuid":
                 pass
             case "text":
