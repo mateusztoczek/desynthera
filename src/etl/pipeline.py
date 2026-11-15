@@ -2,6 +2,7 @@ from pathlib import Path
 import polars as pl
 from etl.schema import T_SCHEMA
 from etl.transformation import p_transform
+from etl.validattion import p_validate
 
 DEFAULT_OUTPUT=Path.cwd()/"output"
 
@@ -21,6 +22,6 @@ def run(input_dir: Path, output_dir: Path | None=None)-> None:
         if t_name not in T_SCHEMA: continue
         df=pl.scan_csv(t_csv, infer_schema=False)
         df_resp=p_transform(df,T_SCHEMA[t_name])
-
+        p_validate(df,T_SCHEMA[t_name])
         output_file=target_dir/f"{t_name}.parquet"
         df_resp.sink_parquet(output_file)
