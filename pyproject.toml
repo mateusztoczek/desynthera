@@ -4,8 +4,8 @@ build-backend= "setuptools.build_meta"
 
 [project]
 name = "desynthera"
-version= "0.1"
-description ="etl and validation for Synthea generated data"
+version= "1.1"
+description ="ETL pipeline and importer for Synthea datasets"
 requires-python=">=3.11"
 dependencies=[
     "polars>=1.0,<2.0"
@@ -13,5 +13,5 @@ dependencies=[
 
 [tool.setuptools.packages.find]
 where=["src"]
-include= ["etl*"]
+include= ["etl*","importer*"]
 namespaces =false
