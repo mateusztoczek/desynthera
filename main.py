@@ -1,7 +1,7 @@
 import sys
 import argparse
-from etl.cli import run_etl
-from importer.cli import run_import
+from etl.cli import run as run_etl
+from importer.cli import run as run_import
 
 def main():
     if len(sys.argv)<2: raise ValueError("Wrong usage")
