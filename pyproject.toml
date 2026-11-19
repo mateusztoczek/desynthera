@@ -10,7 +10,8 @@ requires-python=">=3.11"
 dependencies=[
     "polars>=1.0,<2.0",
     "pyarrow",
-    "pyodbc"
+    "pyodbc",
+    "psycopg2"
 ]
 
 [tool.setuptools.packages.find]
