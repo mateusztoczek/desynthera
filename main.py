@@ -2,6 +2,7 @@ import sys
 import argparse
 from etl.cli import run as run_etl
 from importer.cli import run as run_import
+from benchmark.cli import run as run_becnhmark
 
 def main():
     if len(sys.argv)<2: raise ValueError("Wrong usage")
@@ -12,6 +13,8 @@ def main():
             run_etl(m_args)
         case "load":
             run_import(m_args)
+        case "becnhmark": 
+            run_becnhmark(m_args)
         case _:
             raise SystemExit(f"Unknown command: {m_cmd}")
 

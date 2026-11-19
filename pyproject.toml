@@ -16,5 +16,5 @@ dependencies=[
 
 [tool.setuptools.packages.find]
 where=["src"]
-include= ["etl*","importer*"]
+include= ["etl*","importer*", "benchmark*"]
 namespaces =false
