@@ -15,10 +15,12 @@ def run(target:str, command: str, **params):
     match command:
         case "fix_observation":
             return bck.fix_observation(**params)
-        case "withdrawn_medication":
+        case "remove_medication":
             bck.remove_medication(**params)
         case "register_patient_death":
             bck.register_patient_death(**params)
+        case "register_new_allergy":
+            bck.register_new_allergy(**params)
         case _:
             raise ValueError(f"Not supported: {command}")
                     

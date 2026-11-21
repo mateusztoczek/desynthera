@@ -81,3 +81,45 @@ def register_patient_death(patient_id: str,died_date: str)->int:
             raise
         finally:
             cur.close()
+
+
+def register_new_allergy(patient_id: str,encounter_id:str, a_code:str, a_descr:str, a_eff_date:str, a_codes: list[str])->int:
+    a_eff_dt=datetime.fromisoformat(a_eff_date)
+    conn_str= os.environ["SQLSERVER_CONNECTION"]
+
+    with pyodbc.connect(conn_str, autocommit=False) as conn:
+        cur=conn.cursor()
+        try:
+            cur.execute("SET TRANSACTION ISOLATION LEVEL READ COMMITTED")
+            cur.execute("SET XACT_ABORT ON")
+            cur.execute("""SELECT PatientId FROM dbo.[PATIENTS] WITH (UPDLOCK, HOLDLOCK) WHERE PatientId = ? """,patient_id)
+            patient= cur.fetchone()
+            if patient is None: raise ValueError("No patient")
+            cur.execute("""SELECT EncounterId, PatientId FROM dbo.[ENCOUNTERS] WITH (UPDLOCK, HOLDLOCK) WHERE EncounterId = ? """,encounter_id)
+            encounter= cur.fetchone()
+            if encounter is None: raise ValueError("No registered encounter")
+            if str(encounter.PatientId).lower()!=patient_id.lower(): raise ValueError("Encounter is aligned to another patient")
+
+            cur.execute("""SELECT AllergyId FROM dbo.[ALLERGIES] WHERE PatientId = ? AND Code = ? AND StartDate <= ? AND (EndDate IS NULL OR EndDate > ?) """,patient_id,a_code,a_eff_dt,a_eff_dt)
+            existing=cur.fetchone()
+            if existing is not None: raise ValueError("Allergy already registered")
+            new_id=str(uuid.uuid5(uuid.NAMESPACE_URL,f"{patient_id}:{encounter_id}:{a_code}:{a_eff_date}"))
+            cur.execute("""INSERT INTO dbo.[ALLERGIES] (AllergyId,PatientId,EncounterId,StartDate,Code,Description)
+                VALUES (?, ?, ?, ?, ?, ?) """,new_id,patient_id,encounter_id,a_eff_dt,a_code,a_descr)
+
+            if cur.rowcount!=1: raise ValueError("Expected one inserted allergy")
+            medications_closed=0
+            if a_codes:
+                placeholders=", ".join("?" for _ in a_codes)
+                cur.execute(f"""UPDATE dbo.[MEDICATIONS] SET EndDate = ? WHERE PatientId = ? AND StartDate <= ? AND (EndDate IS NULL OR EndDate > ?)
+                    AND Code IN ({placeholders}) """,a_eff_dt,patient_id,a_eff_dt,a_eff_dt,*a_codes)
+                medications_closed=cur.rowcount
+
+            conn.commit()
+            return medications_closed
+
+        except Exception:
+            conn.rollback()
+            raise
+        finally:
+            cur.close()
