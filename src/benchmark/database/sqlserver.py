@@ -24,7 +24,7 @@ def fix_observation(observation_id:str , next_val: str):
             cur.close()
 
 
-def withdrawn_medication(withdrawn_code: str,n_code: str,n_descr: str,n_base_cost: float,eff_date: str,)->int:
+def remove_medication(withdrawn_code: str,n_code: str,n_descr: str,n_base_cost: float,eff_date: str,)->int:
     if withdrawn_code==n_code: raise ValueError("Withdrawn code is the same as the new one")
     effective_date =datetime.fromisoformat(eff_date)
     base_cost= Decimal(str(n_base_cost))
@@ -52,5 +52,32 @@ def withdrawn_medication(withdrawn_code: str,n_code: str,n_descr: str,n_base_cos
             conn.rollback()
             raise
 
+        finally:
+            cur.close()
+
+
+def register_patient_death(patient_id: str,died_date: str)->int:
+    died_dt=datetime.fromisoformat(died_date)
+    conn_str= os.environ["SQLSERVER_CONNECTION"]
+
+    with pyodbc.connect(conn_str, autocommit=False) as conn:
+        cur=conn.cursor()
+        try:
+            cur.execute("SET TRANSACTION ISOLATION LEVEL READ COMMITTED")
+            cur.execute("""SELECT DeathDate FROM dbo.[PATIENTS] WITH (UPDLOCK, HOLDLOCK) WHERE PatientId = ? """,patient_id)
+            patient= cur.fetchone()
+            if patient is None: raise ValueError("No patient")
+            if patient.DeathDate is not None: raise ValueError("Patient already DEAD")
+            cur.execute("""UPDATE dbo.[PATIENTS] SET DeathDate = ? WHERE PatientId = ? """,died_dt,patient_id)
+            if cur.rowcount!=1: raise ValueError("Expected one updated patient")
+
+            cur.execute("""UPDATE dbo.[MEDICATIONS] SET EndDate = ? WHERE PatientId = ? AND StartDate <= ?  AND (EndDate IS NULL OR EndDate > ?)""",died_dt,patient_id,died_dt,died_dt)
+            medications_closed= cur.rowcount
+            conn.commit()
+            return medications_closed
+
+        except Exception:
+            conn.rollback()
+            raise
         finally:
             cur.close()

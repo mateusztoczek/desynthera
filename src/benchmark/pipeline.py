@@ -17,6 +17,8 @@ def run(target:str, command: str, **params):
             return bck.fix_observation(**params)
         case "withdrawn_medication":
             bck.remove_medication(**params)
+        case "register_patient_death":
+            bck.register_patient_death(**params)
         case _:
             raise ValueError(f"Not supported: {command}")
                     
