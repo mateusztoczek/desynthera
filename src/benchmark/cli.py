@@ -10,6 +10,7 @@ def run(argv: list[str] | None=None)->None:
     parse.add_argument("--command_params", default="{}")
 
     args=parse.parse_args(argv)
-    params=json.loads(args.params)
+    params=json.loads(args.command_params)
     if not isinstance(params,dict): parse.error("command_params must be JSON object")
-    run_pipe(target=args.target,command=args.command, **params)
+    result=run_pipe(target=args.target,command=args.command, **params)
+    if result is not None: print(result)
