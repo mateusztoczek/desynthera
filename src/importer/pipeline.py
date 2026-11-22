@@ -6,7 +6,7 @@ def run(target:str, input_dir: Path, b_size: int):
     match target:
         case "sqlserver":
             from importer.database.sqlserver import load
-        case "postgress":
+        case "postgres" | "postgress":
             from importer.database.postgres import load
         case "mongodb":
             from importer.database.mongodb import load

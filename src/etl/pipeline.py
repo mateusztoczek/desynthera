@@ -36,4 +36,3 @@ def run(df_id:str, input_dir: Path, output_dir: Path | None=None)-> None:
         except Exception:
             tmp_file.unlink(missing_ok=True)
             raise
-            df_resp.sink_parquet(output_file)

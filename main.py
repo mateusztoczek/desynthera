@@ -13,7 +13,7 @@ def main():
             run_etl(m_args)
         case "load":
             run_import(m_args)
-        case "becnhmark": 
+        case "benchmark" | "becnhmark":
             run_becnhmark(m_args)
         case _:
             raise SystemExit(f"Unknown command: {m_cmd}")
