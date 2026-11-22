@@ -1,0 +1,18 @@
+CREATE INDEX "IX_ENCOUNTERS_PatientId"           ON public."ENCOUNTERS" ("PatientId");
+CREATE INDEX "IX_ALLERGIES_PatientId"            ON public."ALLERGIES" ("PatientId");
+CREATE INDEX "IX_ALLERGIES_EncounterId"          ON public."ALLERGIES" ("EncounterId");
+CREATE INDEX "IX_CONDITIONS_PatientId"           ON public."CONDITIONS" ("PatientId");
+CREATE INDEX "IX_CONDITIONS_EncounterId"         ON public."CONDITIONS" ("EncounterId");
+CREATE INDEX "IX_OBSERVATIONS_PatientId"         ON public."OBSERVATIONS" ("PatientId");
+CREATE INDEX "IX_OBSERVATIONS_EncounterId"       ON public."OBSERVATIONS" ("EncounterId");
+CREATE INDEX "IX_OBSERVATIONS_Code"              ON public."OBSERVATIONS" ("Code");
+CREATE INDEX "IX_PROCEDURES_PatientId"           ON public."PROCEDURES" ("PatientId");
+CREATE INDEX "IX_PROCEDURES_EncounterId"         ON public."PROCEDURES" ("EncounterId");
+CREATE INDEX "IX_MEDICATIONS_PatientId"          ON public."MEDICATIONS" ("PatientId");
+CREATE INDEX "IX_MEDICATIONS_EncounterId"        ON public."MEDICATIONS" ("EncounterId");
+CREATE INDEX "IX_CLAIMS_PatientId"               ON public."CLAIMS" ("PatientId");
+CREATE INDEX "IX_CLAIMS_EncounterId"             ON public."CLAIMS" ("EncounterId");
+CREATE INDEX "IX_CLAIMS_TRANSACTIONS_ClaimId"     ON public."CLAIMS_TRANSACTIONS" ("ClaimId");
+CREATE INDEX "IX_CLAIMS_TRANSACTIONS_PatientId"   ON public."CLAIMS_TRANSACTIONS" ("PatientId");
+CREATE INDEX "IX_CLAIMS_TRANSACTIONS_EncounterId" ON public."CLAIMS_TRANSACTIONS" ("EncounterId");
+VACUUM ANALYZE;
