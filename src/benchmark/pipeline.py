@@ -6,7 +6,7 @@ def run(target:str, command: str, **params):
         case "sqlserver":
             from benchmark.database import sqlserver
             bck=sqlserver
-        case "postgress":
+        case "postgres" | "postgress":
             from benchmark.database import postgres
             bck=postgres
         case _:
@@ -16,11 +16,11 @@ def run(target:str, command: str, **params):
         case "fix_observation":
             return bck.fix_observation(**params)
         case "remove_medication":
-            bck.remove_medication(**params)
+            return bck.remove_medication(**params)
         case "register_patient_death":
-            bck.register_patient_death(**params)
+            return bck.register_patient_death(**params)
         case "register_new_allergy":
-            bck.register_new_allergy(**params)
+            return bck.register_new_allergy(**params)
         case _:
             raise ValueError(f"Not supported: {command}")
                     

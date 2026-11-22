@@ -13,7 +13,7 @@ def fix_observation(observation_id:str , next_val: str):
             cur.execute("""UPDATE dbo.[OBSERVATIONS] SET Value= ? WHERE ObservationId= ? """,next_val,observation_id)
             if cur.rowcount!=1: raise ValueError("Uncorrect numer of rows changed")
             cur.execute("""SELECT Value FROM dbo.[OBSERVATIONS] WHERE ObservationId= ? """, observation_id)
-            resp=cur.all()
+            resp=cur.fetchone()
             conn.commit()
 
             return resp[0]
@@ -42,7 +42,7 @@ def remove_medication(withdrawn_code: str,n_code: str,n_descr: str,n_base_cost: 
                 cur.execute("""UPDATE dbo.[MEDICATIONS] SET EndDate = ? WHERE MedicationId = ? """,effective_date,medication.MedicationId)
                 if cur.rowcount!= 1: raise ValueError("One updated expected")
                 new_id= str(uuid.uuid5(uuid.NAMESPACE_URL,f"{medication.MedicationId}:{n_code}:{eff_date}"))
-                cur.execute("""INSERT INTO dbo.[MEDICATIONS] (MedicationId,PatientId,EncounterId,PayerId,StartDate,EndDate,Code,Description,BaseCost,PayerCoverage,Dispenses,TotalCost,ReasonCode,ReasonDescription)
+                cur.execute("""INSERT INTO dbo.[MEDICATIONS] (MedicationId,PatientId,EncounterId,PayerId,StartDate,EndDate,Code,Description,Base_Cost,Payer_Coverage,Dispenses,TotalCost,ReasonCode,ReasonDescription)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",new_id,medication.PatientId,medication.EncounterId,medication.PayerId,effective_date,None,n_code,n_descr,base_cost,Decimal("0"),1,base_cost,medication.ReasonCode,medication.ReasonDescription)
                 if cur.rowcount != 1: raise ValueError("One inserted expected")
             conn.commit()
@@ -83,7 +83,7 @@ def register_patient_death(patient_id: str,died_date: str)->int:
             cur.close()
 
 
-def register_new_allergy(patient_id: str,encounter_id:str, a_code:str, a_descr:str, a_eff_date:str, a_codes: list[str])->int:
+def register_new_allergy(patient_id: str,encounter_id:str, a_code:str, a_descr:str, a_eff_date:str, a_codes: list[str], a_system:str="Unknown")->int:
     a_eff_dt=datetime.fromisoformat(a_eff_date)
     conn_str= os.environ["SQLSERVER_CONNECTION"]
 
@@ -100,12 +100,12 @@ def register_new_allergy(patient_id: str,encounter_id:str, a_code:str, a_descr:s
             if encounter is None: raise ValueError("No registered encounter")
             if str(encounter.PatientId).lower()!=patient_id.lower(): raise ValueError("Encounter is aligned to another patient")
 
-            cur.execute("""SELECT AllergyId FROM dbo.[ALLERGIES] WHERE PatientId = ? AND Code = ? AND StartDate <= ? AND (EndDate IS NULL OR EndDate > ?) """,patient_id,a_code,a_eff_dt,a_eff_dt)
+            cur.execute("""SELECT AllergiesId FROM dbo.[ALLERGIES] WHERE PatientId = ? AND Code = ? AND StartDate <= ? AND (EndDate IS NULL OR EndDate > ?) """,patient_id,a_code,a_eff_dt,a_eff_dt)
             existing=cur.fetchone()
             if existing is not None: raise ValueError("Allergy already registered")
             new_id=str(uuid.uuid5(uuid.NAMESPACE_URL,f"{patient_id}:{encounter_id}:{a_code}:{a_eff_date}"))
-            cur.execute("""INSERT INTO dbo.[ALLERGIES] (AllergyId,PatientId,EncounterId,StartDate,Code,Description)
-                VALUES (?, ?, ?, ?, ?, ?) """,new_id,patient_id,encounter_id,a_eff_dt,a_code,a_descr)
+            cur.execute("""INSERT INTO dbo.[ALLERGIES] (AllergiesId,PatientId,EncounterId,StartDate,Code,[System],Description)
+                VALUES (?, ?, ?, ?, ?, ?, ?) """,new_id,patient_id,encounter_id,a_eff_dt,a_code,a_system,a_descr)
 
             if cur.rowcount!=1: raise ValueError("Expected one inserted allergy")
             medications_closed=0
