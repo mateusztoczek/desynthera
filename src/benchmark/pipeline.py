@@ -2,6 +2,15 @@ from pathlib import Path
 
 
 def run(target:str, command: str, **params):
+    if command=="measure":
+        if target not in ("postgres","postgress"): raise ValueError(f"Measurement not supported for: {target}")
+        from benchmark import measure_postgres
+        return measure_postgres.run(**params)
+    if command=="measure_call":
+        if target not in ("postgres","postgress"): raise ValueError(f"Measurement not supported for: {target}")
+        from benchmark import measure_postgres
+        return measure_postgres.run_call(**params)
+
     match target:
         case "sqlserver":
             from benchmark.database import sqlserver
