@@ -16,6 +16,12 @@ def run(target:str, command: str, **params):
             from benchmark.database import sqlserver
             bck=sqlserver
         case "postgres" | "postgress":
+            if command=="measure":
+                from benchmark import measure_postgres
+                return measure_postgres.run(**params)
+            if command=="measure_call":
+                from benchmark import measure_postgres
+                return measure_postgres.run_call(**params)
             from benchmark.database import postgres
             bck=postgres
         case _:

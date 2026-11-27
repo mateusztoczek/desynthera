@@ -69,9 +69,9 @@ def wczytaj_bloki(plik):
         bloki[nazwa] = ''.join(biezacy)
     return bloki
 
-
-def run(db='ztb', plik=None, scenariusze=None, powtorzenia=1, sprawdz_logike=False,
-        wynik='wyniki_pg.csv', bez_checkpoint=False):
+def run(db=None, plik=None, scenariusze=None, powtorzenia=3, sprawdz_logike=False,
+        wynik='wyniki_pg.csv', bez_checkpoint=True):
+    db=db or os.environ["POSTGRES_CONNECTION"]
     bloki = wczytaj_bloki(plik or DOMYSLNY_PLIK)
     ids = [k for k in bloki if not k.endswith(':P')]
     if scenariusze:
@@ -113,7 +113,8 @@ def run(db='ztb', plik=None, scenariusze=None, powtorzenia=1, sprawdz_logike=Fal
                     raise RuntimeError(f'Po cyklu {sid} zawartość logiczna różni się od wyjściowej')
 
 
-def run_call(db, scenariusz, params, wynik='wyniki_pg_python.csv', bez_checkpoint=False):
+def run_call(scenariusz, params,db=None,wynik='wyniki_pg_python.csv', bez_checkpoint=True):
+    db=db or os.environ["POSTGRES_CONNECTION"]
     from benchmark.database import postgres as bck
     fn = getattr(bck, scenariusz, None)
     if fn is None or scenariusz.startswith('_'):
@@ -135,26 +136,3 @@ def run_call(db, scenariusz, params, wynik='wyniki_pg_python.csv', bez_checkpoin
         w.writerow(row)
     print(' | '.join(str(x) for x in row), flush=True)
     return wynik_funkcji
-
-
-def main(argv=None):
-    ap = argparse.ArgumentParser()
-    ap.add_argument('--db', default='ztb')
-    ap.add_argument('--plik', default=DOMYSLNY_PLIK)
-    ap.add_argument('--scenariusze', default=None, help='np. C1,C2,U4 (domyślnie wszystkie)')
-    ap.add_argument('--powtorzenia', type=int, default=1)
-    ap.add_argument('--sprawdz-logike', action='store_true')
-    ap.add_argument('--wynik', default='wyniki_pg.csv')
-    ap.add_argument('--bez-checkpoint', action='store_true',
-                    help='nie wykonuj CHECKPOINT przed scenariuszem (domyślnie wykonuje, '
-                         'żeby każdy pomiar startował z tego samego stanu zapisu pełnych stron do WAL)')
-    a = ap.parse_args(argv)
-    try:
-        run(db=a.db, plik=a.plik, scenariusze=a.scenariusze, powtorzenia=a.powtorzenia,
-            sprawdz_logike=a.sprawdz_logike, wynik=a.wynik, bez_checkpoint=a.bez_checkpoint)
-    except (RuntimeError, ValueError) as e:
-        sys.exit(f'BŁĄD: {e}')
-
-
-if __name__ == '__main__':
-    main()
