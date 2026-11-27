@@ -8,7 +8,7 @@ CREATE TABLE ztb_probka_pac AS
 SELECT row_number() OVER (ORDER BY "PatientId"::text COLLATE "C")::int AS nr, "PatientId"
 FROM public."PATIENTS"
 ORDER BY "PatientId"::text COLLATE "C"
-LIMIT (SELECT ceil(count(*) * 0.10) FROM public."PATIENTS");
+LIMIT (SELECT ceil(count(*)*0.10)::bigint FROM public."PATIENTS");
 CREATE UNIQUE INDEX ON ztb_probka_pac (nr);
 CREATE UNIQUE INDEX ON ztb_probka_pac ("PatientId");
 
